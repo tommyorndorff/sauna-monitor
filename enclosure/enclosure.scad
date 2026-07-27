@@ -56,8 +56,17 @@ lid_gap       = 12.0;  // gap between base and lid in the "both" preview layout
 // ---- Gasket groove (in the lid mating face) -------------------------------
 // A rectangular channel cut into the underside of the lid, sitting over the
 // centreline of the base wall. Fill with silicone cord (see README).
-gasket_groove_w = 2.4; // groove width  (for ~2 mm silicone cord)
+gasket_groove_w = 2.4; // groove width  (for ~2 mm silicone cord or the printed TPU gasket)
 gasket_groove_d = 1.6; // groove depth
+
+// ---- Printed TPU gasket (part = "gasket") ---------------------------------
+// A flexible gasket you print in TPU to seat in the lid groove, as an
+// alternative to buying silicone cord. Sits in the groove and stands proud so
+// the lid compresses it against the base wall top.
+gasket_fit_clear = 0.20; // per-side clearance so the TPU seats in the groove
+gasket_proud     = 1.00; // how far the gasket stands above the groove to compress
+gasket_w         = gasket_groove_w - 2*gasket_fit_clear; // cross-section width
+gasket_h         = gasket_groove_d + gasket_proud;       // total printed height
 
 // ---- Lid corner screws (M3, captive in base corner bosses) ----------------
 lid_screw_d        = 3.0;   // nominal M3
@@ -134,6 +143,8 @@ if (part == "base") {
     base();
 } else if (part == "lid") {
     lid();
+} else if (part == "gasket") {
+    gasket();
 } else {
     // "both" -- lay them side by side for preview / plating.
     base();
@@ -329,6 +340,23 @@ module lid_screw_holes() {
                 cylinder(h = lid_screw_head_h + eps, d = lid_screw_head_d);
         }
     }
+}
+
+
+// ============================================================================
+//  PRINTED TPU GASKET
+// ============================================================================
+// A flexible ring following the same centreline as the lid gasket groove, sized
+// gasket_w wide (groove width minus a per-side clearance) and gasket_h tall.
+// Print in TPU, seat it in the lid groove; the lid compresses it on the base wall.
+module gasket() {
+    cl = OL - wall;   // same centreline path as gasket_groove()
+    cw = OW - wall;
+    linear_extrude(height = gasket_h)
+        difference() {
+            rrect(cl + gasket_w, cw + gasket_w, corner_r);
+            rrect(cl - gasket_w, cw - gasket_w, inner_r);
+        }
 }
 
 

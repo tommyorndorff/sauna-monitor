@@ -14,14 +14,16 @@ Only the thermocouple probe and its high-temp lead enter the sauna.
 |------|-------------------|
 | `sauna-monitor-enclosure-base.stl` | as-is, floor on the bed; no supports |
 | `sauna-monitor-enclosure-lid.stl` | mating face up (flat outer face on the bed) |
+| `sauna-monitor-enclosure-gasket.stl` | flat on the bed; print in TPU (optional, see below) |
 | `enclosure.scad` | parametric source |
 
 ## Waterproofing features (IP65-ish intent)
 
 Gasket-and-screws design, not a hermetic seal:
 
-- Gasket groove in the lid mating face for ~2 mm silicone O-ring cord
-  (`gasket_groove_w = 2.4`, `gasket_groove_d = 1.6`).
+- Gasket groove in the lid mating face (`gasket_groove_w = 2.4`,
+  `gasket_groove_d = 1.6`). Seat either ~2 mm silicone O-ring cord or the printed
+  TPU gasket (see below).
 - Screw-down lid, 4× M3 corner screws into captive bosses.
 - Two IP68 cable-gland holes on the front wall: PG7 (~12.5 mm) for the thermocouple
   lead, PG9 (~15.2 mm) for the USB power cable.
@@ -42,16 +44,37 @@ heat and UV.
 - Top/bottom layers: 5+ for a watertight floor and lid.
 - Infill: 20–30 %.
 - Supports: none. The base prints floor-down; the lid prints mating-face-up.
-- Gasket: ~2 mm silicone rubber cord in the lid groove.
+
+## Gasket
+
+Two options for the seal in the lid groove:
+
+- Silicone O-ring cord (~2 mm), cut to length. Simplest.
+- Printed TPU gasket (`sauna-monitor-enclosure-gasket.stl`), if you'd rather not
+  source cord. It follows the groove centreline, sits 0.2 mm under-width so it
+  seats, and stands `gasket_proud` (1.0 mm) above the groove to compress under the
+  lid.
+
+TPU gasket print settings:
+
+- Material: TPU (95A is fine).
+- Layer height: 0.2 mm; walls only (it's thin), ~3 perimeters, 0–15 % infill.
+- Slow it down (20–30 mm/s) and disable retraction if your slicer allows; thin TPU
+  rings print cleaner slow.
+- No supports.
+
+Tune fit with `gasket_fit_clear` (per-side clearance) and `gasket_proud`
+(compression height) in `enclosure.scad`.
 
 ## Adjusting the fit
 
 Edit the variables at the top of `enclosure.scad`, then re-export:
 
 ```bash
-# base (with vent plug) and lid, high facet quality
-openscad -o sauna-monitor-enclosure-base.stl -D 'part="base"' -D '$fn=96' --export-format binstl enclosure.scad
-openscad -o sauna-monitor-enclosure-lid.stl  -D 'part="lid"'  -D '$fn=96' --export-format binstl enclosure.scad
+# base (with vent plug), lid, and TPU gasket, high facet quality
+openscad -o sauna-monitor-enclosure-base.stl   -D 'part="base"'   -D '$fn=96' --export-format binstl enclosure.scad
+openscad -o sauna-monitor-enclosure-lid.stl    -D 'part="lid"'    -D '$fn=96' --export-format binstl enclosure.scad
+openscad -o sauna-monitor-enclosure-gasket.stl -D 'part="gasket"' -D '$fn=96' --export-format binstl enclosure.scad
 ```
 
 Measure your actual boards first and set the mounting-hole spacings before a final

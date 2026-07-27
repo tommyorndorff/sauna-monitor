@@ -21,7 +21,7 @@ a silicone gasket cord.
 | 9 | 5 V USB supply + cable | Fed from a GFCI-protected outdoor outlet | $8 | [Amazon search](https://www.amazon.com/s?k=5V+USB+power+supply) |
 | 10 | Hookup wire / jumpers + heat-shrink | For the 5 SPI + power lines | $5 | [Amazon search](https://www.amazon.com/s?k=jumper+wires+heat+shrink) |
 | 11 | Probe mount hardware | Stainless bracket/bolt to fix the tip near the ceiling | $5 | local hardware |
-| 12 | Silicone gasket cord (~2 mm) | Sits in the printed lid's gasket groove | $6 | [Amazon search](https://www.amazon.com/s?k=silicone+rubber+cord+2mm) |
+| 12 | Lid gasket | Either ~2 mm silicone cord, or print the TPU gasket in [`../enclosure/`](../enclosure/) (needs TPU filament) | $6 | [Silicone cord](https://www.amazon.com/s?k=silicone+rubber+cord+2mm) · [TPU filament](https://www.amazon.com/s?k=TPU+filament) |
 
 Note: SPI does not use the 4.7 kΩ pull-up resistor that a DS18B20 (1-Wire) build
 requires. If you're adapting a DS18B20 guide, drop that resistor.
