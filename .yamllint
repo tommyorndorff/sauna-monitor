@@ -1,0 +1,16 @@
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable
+  truthy:
+    # Home Assistant / ESPHome use `on`/`off` as real string values
+    check-keys: false
+  document-start: disable
+
+ignore: |
+  esphome/secrets.yaml

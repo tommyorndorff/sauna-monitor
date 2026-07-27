@@ -1,0 +1,47 @@
+# Wi-Fi Sauna Temperature Monitor — ESPHome device config
+#
+# ESP32 + MAX31855 (K-type thermocouple amplifier) over SPI.
+# MAX31855 is read-only: CLK + MISO only, NO MOSI. See README.md for wiring.
+#
+# Requires ESPHome 2025.x or newer (the `max31855` platform under the SPI bus).
+# Copy secrets.yaml.example -> secrets.yaml and fill in your values before flashing.
+
+substitutions:
+  device_name: sauna-monitor
+  friendly_name: "Sauna Temperature"
+  # Wiring — override here if you used different GPIOs (see README wiring table).
+  clk_pin: GPIO18   # SPI clock  (SCK / CLK)
+  miso_pin: GPIO19  # data out from the chip (DO / SO)
+  cs_pin: GPIO5     # chip select (any free GPIO)
+  update_interval: 10s
+
+esphome:
+  name: ${device_name}
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_key   # optional but recommended
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# MAX31855 is read-only: CLK + MISO only, no MOSI
+spi:
+  clk_pin: ${clk_pin}
+  miso_pin: ${miso_pin}
+
+sensor:
+  - platform: max31855
+    name: ${friendly_name}
+    cs_pin: ${cs_pin}
+    update_interval: ${update_interval}

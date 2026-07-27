@@ -1,0 +1,66 @@
+# Sauna Monitor — Home Assistant package
+#
+# Bundles the arming helper and the three automations for the sauna-ready
+# notification flow. Include it from configuration.yaml via:
+#
+#   homeassistant:
+#     packages: !include_dir_named packages
+#
+# Then reload YAML (Developer Tools -> YAML -> All / Automations).
+#
+# Rename `notify.mobile_app_your_phone` to your device's mobile-app notify
+# service (Settings -> Companion App). The ESP32 publishes the temperature as
+# sensor.sauna_temperature (°C) — see ../../esphome/sauna-monitor.yaml.
+
+# --- Arming helper: flip ON when you start the heater --------------------------
+input_boolean:
+  sauna_heating:
+    name: Sauna Heating
+    icon: mdi:radiator
+
+automation:
+  # --- Ready notification (armed, one-shot) -----------------------------------
+  # Only fires while "Sauna Heating" is on, then disarms itself so a mid-session
+  # dip-and-reclimb through the threshold won't re-alert.
+  - id: sauna_ready_armed
+    alias: Sauna Ready (armed)
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.sauna_temperature
+        above: 80              # °C  (80 °C ≈ 176 °F) — set to taste
+        for:
+          minutes: 2           # must hold above threshold to ignore spikes
+    conditions:
+      - condition: state
+        entity_id: input_boolean.sauna_heating
+        state: "on"
+    actions:
+      - action: notify.mobile_app_your_phone
+        data:
+          title: "🔥 Sauna is ready"
+          message: >
+            Sauna hit {{ states('sensor.sauna_temperature') }} °C — good to go.
+      - action: input_boolean.turn_off      # disarm so it won't re-alert this session
+        target:
+          entity_id: input_boolean.sauna_heating
+    mode: single
+
+  # --- Auto-disarm on cooldown ------------------------------------------------
+  # Tidies state if you armed but never went / cancelled the session.
+  - id: sauna_disarm_on_cooldown
+    alias: Sauna Disarm on Cooldown
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.sauna_temperature
+        below: 40
+        for:
+          minutes: 10
+    conditions:
+      - condition: state
+        entity_id: input_boolean.sauna_heating
+        state: "on"
+    actions:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.sauna_heating
+    mode: single

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  yamllint:
+    name: Lint YAML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run yamllint
+        run: pipx run yamllint --strict .
+
+  esphome:
+    name: Validate ESPHome config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate a CI secrets.yaml
+        working-directory: esphome
+        run: |
+          cp secrets.yaml.example secrets.yaml
+          # Overwrite the placeholder API key with a valid base64 32-byte key
+          KEY=$(openssl rand -base64 32)
+          python - "$KEY" <<'PY'
+          import sys, re, pathlib
+          key = sys.argv[1]
+          p = pathlib.Path("secrets.yaml")
+          text = p.read_text()
+          text = re.sub(r'^api_key:.*$', f'api_key: "{key}"', text, flags=re.M)
+          p.write_text(text)
+          PY
+      - name: esphome config
+        run: pipx run esphome config esphome/sauna-monitor.yaml
+
+  home-assistant:
+    name: Validate Home Assistant config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Home Assistant config
+        uses: frenck/action-home-assistant@v1
+        with:
+          path: homeassistant
+          version: stable

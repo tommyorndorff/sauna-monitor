@@ -1,0 +1,13 @@
+# ESPHome secrets and build artifacts — never commit real credentials
+esphome/secrets.yaml
+esphome/.esphome/
+
+# OS / editor cruft
+.DS_Store
+
+# Claude Code: personal/local settings are not shared
+.claude/settings.local.json
+
+# Keep Claude Code AI-instruction stub tracked despite any broad .claude ignore
+!.claude/
+!.claude/CLAUDE.md

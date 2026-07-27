@@ -1,0 +1,9 @@
+# Minimal Home Assistant configuration used to VALIDATE the sauna_monitor package
+# in CI (hass --script check_config). In a real install you would merge the
+# `packages:` line into your existing configuration.yaml rather than use this file
+# wholesale.
+
+default_config:
+
+homeassistant:
+  packages: !include_dir_named packages
